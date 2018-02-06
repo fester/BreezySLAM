@@ -531,6 +531,26 @@ Map_get(Map * self, PyObject * args, PyObject * kwds)
 }
 
 static PyObject *
+Map_set(Map * self, PyObject * args, PyObject * kwds)
+{        
+    PyObject * py_mapbytes = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &py_mapbytes))
+    {
+        return null_on_raise_argument_exception("Map", "set");
+    }
+    
+    if (bad_mapbytes(py_mapbytes, self->map.size_pixels, "set"))
+    {
+        Py_RETURN_NONE;
+    }
+    
+    map_set(&self->map, PyByteArray_AsString(py_mapbytes));
+    
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 Map_update(Map *self, PyObject *args, PyObject *kwds)
 {   
     Scan * py_scan = NULL;
@@ -575,6 +595,9 @@ static PyMethodDef Map_methods[] =
     "Hole width determines width of obstacles (walls)."
     },
     {"get", (PyCFunction)Map_get, METH_VARARGS,
+    "Map.set(bytearray) fills map pixels with contents of a byte array. The byte array's length have to be square of size of map."
+    },
+    {"set", (PyCFunction)Map_set, METH_VARARGS,
     "Map.get(bytearray) fills byte array with map pixels, where bytearray length is square of size of map."
     },
     {NULL}  // Sentinel 
