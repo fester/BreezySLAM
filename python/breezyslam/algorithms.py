@@ -63,7 +63,7 @@ class CoreSLAM(object):
     '''
     
     def __init__(self, laser, map_size_pixels, map_size_meters, 
-        map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM):
+                 map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM, map_bytes=None):
         '''
         Creates a CoreSLAM object suitable for updating with new Lidar and odometry data.
         laser is a Laser object representing the specifications of your Lidar unit
@@ -71,6 +71,7 @@ class CoreSLAM(object):
         map_size_meters is the size of the square map in meters
         quality from 0 through 255 determines integration speed of scan into map
         hole_width_mm determines width of obstacles (walls)
+        map_bytes can be used to set previously saved map state.
         '''
     
         # Initialize parameters
@@ -88,7 +89,7 @@ class CoreSLAM(object):
         self.scan_for_mapbuild = pybreezyslam.Scan(laser, 3)
                 
         # Initialize the map 
-        self.map = pybreezyslam.Map(map_size_pixels, map_size_meters)
+        self.map = pybreezyslam.Map(map_size_pixels, map_size_meters, map_bytes)
                 
     def update(self, scans_mm, velocities, should_update_map=True):
         '''
@@ -157,10 +158,10 @@ class SinglePositionSLAM(CoreSLAM):
     '''
 
     def __init__(self, laser, map_size_pixels, map_size_meters, 
-                map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM):
+                 map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM, map_bytes=None):
 
         CoreSLAM.__init__(self, laser, map_size_pixels, map_size_meters, 
-            map_quality, hole_width_mm)                    
+                          map_quality, hole_width_mm, map_bytes)
                     
         # Initialize the position (x, y, theta)
         init_coord_mm = 500 * map_size_meters # center of map
@@ -226,7 +227,7 @@ class RMHC_SLAM(SinglePositionSLAM):
     def __init__(self, laser, map_size_pixels, map_size_meters, 
                 map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM,
                 random_seed=None, sigma_xy_mm=_DEFAULT_SIGMA_XY_MM, sigma_theta_degrees=_DEFAULT_SIGMA_THETA_DEGREES, 
-                max_search_iter=_DEFAULT_MAX_SEARCH_ITER):
+                max_search_iter=_DEFAULT_MAX_SEARCH_ITER, map_bytes=None):
         '''
         Creates a RMHCSlam object suitable for updating with new Lidar and odometry data.
         laser is a Laser object representing the specifications of your Lidar unit
@@ -243,7 +244,7 @@ class RMHC_SLAM(SinglePositionSLAM):
         '''
     
         SinglePositionSLAM.__init__(self, laser, map_size_pixels, map_size_meters, 
-            map_quality, hole_width_mm)
+                                    map_quality, hole_width_mm, map_bytes)
             
         if not random_seed:
             random_seed = int(time.time()) & 0xFFFF
@@ -292,7 +293,7 @@ class Deterministic_SLAM(SinglePositionSLAM):
     '''
     
     def __init__(self, laser, map_size_pixels, map_size_meters, 
-                map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM):
+                 map_quality=_DEFAULT_MAP_QUALITY, hole_width_mm=_DEFAULT_HOLE_WIDTH_MM, map_bytes=None):
         '''
         Creates a Deterministic_Slam object suitable for updating with new Lidar and odometry data.
         laser is a Laser object representing the specifications of your Lidar unit
@@ -303,7 +304,7 @@ class Deterministic_SLAM(SinglePositionSLAM):
         '''
     
         SinglePositionSLAM.__init__(self, laser, map_size_pixels, map_size_meters, 
-            map_quality, hole_width_mm)                    
+                                    map_quality, hole_width_mm, map_bytes)
        
     def _getNewPosition(self, start_position):
         '''

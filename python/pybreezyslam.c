@@ -490,7 +490,7 @@ Map_init(Map *self, PyObject *args, PyObject *kwds)
            
     map_init(&self->map, size_pixels, size_meters);
     
-    if (py_bytes && !bad_mapbytes(py_bytes, size_pixels, "__init__"))
+    if (py_bytes && py_bytes != Py_None && !bad_mapbytes(py_bytes, size_pixels, "__init__"))
     {    
         map_set(&self->map, PyByteArray_AsString(py_bytes));
     }
